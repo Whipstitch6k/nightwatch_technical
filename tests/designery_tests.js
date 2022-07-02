@@ -25,9 +25,17 @@ describe('Designory Tests', function() {
 
         //verify menu not visible before menu click.
         .verify.not.visible('@menuWrapper')
-        //.verify.not.visible("//a[text()='WORK']") //element DNE before click, not testing visibility
 
-        .verify.visible('@menuButton')
+        //verify menu items not visible before menu click
+        .useXpath() // text selectors are Xpath
+        .verify.not.visible("//a[contains(@class, 'subnav-toggle') and text()='LOCATIONS']") //locations has a submenu and not a link, test by itself
+        for(var i=0; i<menuItemsWithLinks.length; i++){
+          browser.verify.not.visible("//a[text()='" + menuItemsWithLinks[i] + "']") 
+        }
+        browser.useCss()
+
+        //menu click
+        designory.verify.visible('@menuButton') //uncertain why, but above code block breaks everything below unless I lead the next statement with "designory". 
         .click('@menuButton')
 
         //verify menu options visible after click, also check that link matches for all except LOCATIONS
@@ -37,7 +45,7 @@ describe('Designory Tests', function() {
         .verify.visible("//a[contains(@class, 'subnav-toggle') and text()='LOCATIONS']") //locations has a submenu and not a link, test by itself
         for(var i=0; i<menuItemsWithLinks.length; i++){
           browser.verify.visible("//a[text()='" + menuItemsWithLinks[i] + "']") 
-          browser.expect.element("//a[text()='" + menuItemsWithLinks[i] + "']").to.have.attribute('href').which.contains(menuItemsWithLinks[i].toLowerCase());
+          browser.expect.element("//a[text()='" + menuItemsWithLinks[i] + "']").to.have.attribute('href').which.contains(menuItemsWithLinks[i].toLowerCase()); //for example, "WORK" sould link to "/work"
         }
         browser.useCss()
 
