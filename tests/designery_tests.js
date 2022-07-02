@@ -16,39 +16,34 @@ describe('Designory Tests', function() {
   */
   it.only('menuVerificationTest', function(browser) {
     browser
+      var menuItemsWithLinks = ["WORK", "ABOUT", "CAREERS", "CONTACT", "NEWS"] //all menu items except LOCATIONS, since LOCATIONS is a submenu and the rest are links
       var designory = browser.page.designoryPages();
 
       designory.navigate()
-        //verify menu options not visible before menu click.
-        //.verify.not.visible('a[href*="/work"]')
-        
+        //for the sake of getting it working, I'm going to do visibility checks before and after clicking the menu button. If an element is not visible before the click and is visible after the click, logically it is part of the menu. There may be a way to check the actual element nesting, however I am having difficult locating this capability at this time. As such for the sake of getting the test written and working I'm going to do the visiblity checks mentioned above. I will return to try and figure out how to check the nesting if time permits
+
+
+        //verify menu not visible before menu click.
+        .verify.not.visible('@menuWrapper')
+        //.verify.not.visible("//a[text()='WORK']") //element DNE before click, not testing visibility
+
         .verify.visible('@menuButton')
         .click('@menuButton')
 
-
-        //verify menu options visible after click
+        //verify menu options visible after click, also check that link matches for all except LOCATIONS
+        .verify.visible('@menuWrapper')
 
         .useXpath() // text selectors are Xpath
-        .verify.visible("//a[text()='WORK']") 
-        browser.getAttribute("//a[text()='WORK']", 'href', function(result1) {
-          console.log('result1', result1);
-        })
-        .useCss()
+        .verify.visible("//a[contains(@class, 'subnav-toggle') and text()='LOCATIONS']") //locations has a submenu and not a link, test by itself
+        for(var i=0; i<menuItemsWithLinks.length; i++){
+          browser.verify.visible("//a[text()='" + menuItemsWithLinks[i] + "']") 
+          browser.expect.element("//a[text()='" + menuItemsWithLinks[i] + "']").to.have.attribute('href').which.contains(menuItemsWithLinks[i].toLowerCase());
+        }
+        browser.useCss()
 
-        .verify.visible('a[href*="/work"]')
-        browser.getText('a[href*="/work"]', function(result2) {
-          console.log('result2', result2);
-        })
 
         /*
-        calling it a night here, checking in for backup and posterity
-
-        maybe we can create an array of menu items to loop through
-          instead of visibility check, verify menu contains each element, maybe using expects? research further tomorrow
-          use getAttribute to make sure each menuitem points to "/" + menuitem.toLower()
-            Note: Location doesn't go to a link but instead has a submenu
-
-        //maybe we can break this whole series of checks out into a function, repeat it for designory.com and designory.com/menuitems
+        breaking for lunch. At this point I am satisfied on the tests with the designory page. We check for visibility of all elements post-click. Need to perform the same test for each webpage. Either see if we can turn this into a function and loop for each webpage or see if we can call menuVeriicationTest with multiple browser vars navigated to the different sites.
         */
   });
 
