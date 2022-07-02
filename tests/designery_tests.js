@@ -70,8 +70,25 @@ describe('Designory Tests', function() {
   */
   it('cookieVerificationTest', function(browser) {
     browser
-      .waitForElementVisible('body')
-      .assert.titleContains('NotThereData')
+      var designory = browser.page.designoryPages();
+      designory.navigate('https://www.designory.com' + suffix)
+
+      //clear cookies
+      //navigate to page
+      //check for menu
+      //hit accept
+      //check for menu
+      //check cookies
+
+      //clear cookies
+      //navigate to page
+      //check for menu
+      //hit x
+      //check for menu
+      //check cookies
+
+      //given above only difference is whether we are hitting x or accept, we can probably make that a function that accepts which button we are pressing as input
+      //also running the "x" test after the "accept" test means we also satisfy condition 3, verify that cookie notice shows up after claering cookies
   });
 
   /*
