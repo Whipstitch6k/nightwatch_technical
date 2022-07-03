@@ -68,7 +68,7 @@ describe('Designory Tests', function() {
     Verify that after closing the cookie notice with the "X" button, the user doesn't see the notice anymore.
     Verify that after clearing cookies the “cookie notice” shows up again. 
   */
-  it.only('cookieVerificationTest', function(browser) {
+  it('cookieVerificationTest', function(browser) {
     cookieNoticeWithButtonPress('@acceptCookieButton')
     //cookieNoticeWithButtonPress('@cookieMessageXButton') //there is no x button, awaiting info from Designory
 
@@ -93,10 +93,34 @@ describe('Designory Tests', function() {
       H2 font size is "40px"
       Map URL is "http://maps.google.com/?q=%20225%20N%20Michigan%20Ave,%20Suite%202100%20Chicago,%20IL%2060601"
   */
-  it('locationVerificationTest', function(browser) {
-    browser
-      .waitForElementVisible('body')
-      .assert.titleContains('NotThereData')
+  it.only('locationVerificationTest', function(browser) {
+    locationVerificationTestWithArgs('chicago', 'CHI', '+1 312 729 4500', "http://maps.google.com/?q=%20225%20N%20Michigan%20Ave,%20Suite%202100%20Chicago,%20IL%2060601")
+
+      //doing this as a function for future=proofing. We can run it on other locations easier this way
+    function locationVerificationTestWithArgs(city, h1Value, phoneNumber, mapUrl){
+      browser
+        var designory = browser.page.designoryPages();
+        designory.navigate('https://www.designory.com/locations/' + city)
+        
+        //verifying Chicago in footer may be difficult. Currently it is rendering in firefox but not in Chrome. That said I can find it in the Dev Tools but it doesn't render. Also not sure how to handle the nesting. Will come back to this one tomorrow
+
+        //.useXpath() //test is xpath
+        .verify.textEquals('h1', h1Value)
+
+        //phone element is above the Area of Interest form picker, which is the only form-picker on the page
+        const phoneElement = locateWith(By.tagName('P')).above(By.className('form-picker'))
+        browser.verify.textEquals(phoneElement, "Phone: " + phoneNumber)
+
+        //h2 font size
+        //.verify.cssProperty('h2', "font-size", "40px") //gets 16px. This is not a static value so it will change based on window size and the like
+
+        //map url
+        .useXpath() //test is xpath
+        browser.expect.element("//a[contains(@class, 'location')]").to.have.attribute('href').which.equals("http://maps.google.com/?q=%20225%20N%20Michigan%20Ave,%20Suite%202100%20Chicago,%20IL%2060601") //returns correct but not percent encoded
+        browser.useCss();
+      }
+
+      //calling it a night. At current all that is left is checking the footer for Chicago, then polishing up the code
   });
 
   after(browser => browser.end());
