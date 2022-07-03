@@ -5,6 +5,12 @@ module.exports = {
     },
     menuWrapper:{
       selector: '#body > div.nav-wrapper.scroll'
+    },
+    cookieMessage:{
+      selector: 'div[id=CybotCookiebotDialogBody]'
+    },
+    acceptCookieButton:{
+      selector: 'a[id=CybotCookiebotDialogBodyButtonAccept]'
     }
   }
 };

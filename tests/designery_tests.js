@@ -16,7 +16,7 @@ describe('Designory Tests', function() {
   */
 
   //Note: It might be nice to be able to dynamically create the list of menuItems rather than hardcode them. Might see about figuring out this feature if time permits
-  it.only('menuVerificationTest', function(browser) {
+  it('menuVerificationTest', function(browser) {
 
     menuVerifcationTestSinglePage('');
     menuVerifcationTestSinglePage('/work');
@@ -68,27 +68,21 @@ describe('Designory Tests', function() {
     Verify that after closing the cookie notice with the "X" button, the user doesn't see the notice anymore.
     Verify that after clearing cookies the “cookie notice” shows up again. 
   */
-  it('cookieVerificationTest', function(browser) {
-    browser
-      var designory = browser.page.designoryPages();
-      designory.navigate('https://www.designory.com' + suffix)
+  it.only('cookieVerificationTest', function(browser) {
+    cookieNoticeWithButtonPress('@acceptCookieButton')
+    //cookieNoticeWithButtonPress('@cookieMessageXButton') //there is no x button, awaiting info from Designory
 
-      //clear cookies
-      //navigate to page
-      //check for menu
-      //hit accept
-      //check for menu
-      //check cookies
+    function cookieNoticeWithButtonPress(buttonSelector){
+      browser
+        var designory = browser.page.designoryPages();
+        designory.navigate('https://www.designory.com')
 
-      //clear cookies
-      //navigate to page
-      //check for menu
-      //hit x
-      //check for menu
-      //check cookies
-
-      //given above only difference is whether we are hitting x or accept, we can probably make that a function that accepts which button we are pressing as input
-      //also running the "x" test after the "accept" test means we also satisfy condition 3, verify that cookie notice shows up after claering cookies
+        .deleteCookies(function() {});
+        browser.refresh()
+        .verify.visible('@cookieMessage')
+        .click(buttonSelector)
+        .verify.not.visible('@cookieMessage')
+      }
   });
 
   /*
