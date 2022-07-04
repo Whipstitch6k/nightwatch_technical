@@ -136,7 +136,7 @@ describe('Designory Tests', function() {
 
         //map url
         .useXpath() //test is xpath
-        browser.expect.element("//a[contains(@class, 'location')]").to.have.attribute('href', "Verify map link").which.equals("http://maps.google.com/?q=%20225%20N%20Michigan%20Ave,%20Suite%202100%20Chicago,%20IL%2060601") //returns correct but not percent encoded
+        browser.expect.element("//a[contains(@class, 'location')]").to.have.attribute('href', "Verify map link").which.equals(mapUrl) //returns correct but not percent encoded
         browser.useCss();
       }
   });
