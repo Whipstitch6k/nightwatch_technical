@@ -21,7 +21,7 @@ describe('Designory Tests', function() {
     menuVerifcationTestSinglePage('');
     menuVerifcationTestSinglePage('/work');
     menuVerifcationTestSinglePage('/about');
-    menuVerifcationTestSinglePage('/carees');
+    menuVerifcationTestSinglePage('/careers');
     menuVerifcationTestSinglePage('/contact');
     menuVerifcationTestSinglePage('/news');
 
@@ -31,8 +31,7 @@ describe('Designory Tests', function() {
         var designory = browser.page.designoryPages();
 
         designory.navigate('https://www.designory.com' + suffix)
-          //for the sake of getting it working, I'm going to do visibility checks before and after clicking the menu button. If an element is not visible before the click and is visible after the click, logically it is part of the menu. There may be a way to check the actual element nesting, however I am having difficult locating this capability at this time. As such for the sake of getting the test written and working I'm going to do the visiblity checks mentioned above. I will return to try and figure out how to check the nesting if time permits
-
+          //Using xpath navigation, I could check to verify the menuItems are actually part of the menu, but based on my current understanding of xpath, I can only verify for a known element structure. There may be a more generic way but at current I do not know. For the time being I will stay with the visibility check method, as the logic still holds. If the element is not visible before clicking the menu button and then visible after clicking the button, then the element is part of the menu
 
           //verify menu not visible before menu click.
           .verify.not.visible('@menuWrapper')
@@ -46,7 +45,7 @@ describe('Designory Tests', function() {
           browser.useCss()
 
           //menu click
-          designory.verify.visible('@menuButton') //uncertain why, but above code block breaks everything below unless I lead the next statement with "designory". 
+          designory.verify.visible('@menuButton') //uncertain why, but above code block breaks everything below unless I lead the next statement with "designory". Perhaps something about the switch to xpath and then back to css removes designory from scope?
           .click('@menuButton')
 
           //verify menu options visible after click, also check that link matches for all except LOCATIONS
@@ -79,7 +78,7 @@ describe('Designory Tests', function() {
 
         .deleteCookies(function() {});
         browser.refresh()
-        .verify.visible('@cookieMessage')
+        designory.verify.visible('@cookieMessage')
         .click(buttonSelector)
         .verify.not.visible('@cookieMessage')
       }
@@ -93,18 +92,26 @@ describe('Designory Tests', function() {
       H2 font size is "40px"
       Map URL is "http://maps.google.com/?q=%20225%20N%20Michigan%20Ave,%20Suite%202100%20Chicago,%20IL%2060601"
   */
-  it.only('locationVerificationTest', function(browser) {
-    locationVerificationTestWithArgs('chicago', 'CHI', '+1 312 729 4500', "http://maps.google.com/?q=%20225%20N%20Michigan%20Ave,%20Suite%202100%20Chicago,%20IL%2060601")
+  it('locationVerificationTest', function(browser) {
+    locationVerificationTestWithArgs('Chicago', 'CHI', '+1 312 729 4500', "http://maps.google.com/?q=%20225%20N%20Michigan%20Ave,%20Suite%202100%20Chicago,%20IL%2060601")
 
-      //doing this as a function for future=proofing. We can run it on other locations easier this way
+      //doing this as a function for future-proofing. We can run it on other locations easier this way
     function locationVerificationTestWithArgs(city, h1Value, phoneNumber, mapUrl){
       browser
         var designory = browser.page.designoryPages();
-        designory.navigate('https://www.designory.com/locations/' + city)
+        designory.navigate('https://www.designory.com/locations/' + city.toLowerCase())
         
-        //verifying Chicago in footer may be difficult. Currently it is rendering in firefox but not in Chrome. That said I can find it in the Dev Tools but it doesn't render. Also not sure how to handle the nesting. Will come back to this one tomorrow
+        //verify the a element with text "Chicago" and href /locations.chicago is visible
+        .useXpath() // text selectors are Xpath
+        browser.verify.visible("//a[text()='" + city + "']") 
+        browser.expect.element("//a[text()='" + city + "']").to.have.attribute('href').which.contains(city.toLowerCase())
+        
+        //verify that element is part of the footer. Note: this looks for a very specific known element structure. Maybe there is a way to make it more generic
+        browser.verify.elementPresent("//a[text()='" + city + "']//parent::h3/parent::div/parent::div/parent::div/parent::div/parent::div/parent::footer")
+        browser.useCss()
 
-        //.useXpath() //test is xpath
+        //vefify it is in the footer via xpath navigation
+
         .verify.textEquals('h1', h1Value)
 
         //phone element is above the Area of Interest form picker, which is the only form-picker on the page
@@ -112,15 +119,13 @@ describe('Designory Tests', function() {
         browser.verify.textEquals(phoneElement, "Phone: " + phoneNumber)
 
         //h2 font size
-        //.verify.cssProperty('h2', "font-size", "40px") //gets 16px. This is not a static value so it will change based on window size and the like
+        .verify.cssProperty('h2', "font-size", "40px") //gets 16px. This is not a static value so it will change based on window size and the like
 
         //map url
         .useXpath() //test is xpath
         browser.expect.element("//a[contains(@class, 'location')]").to.have.attribute('href').which.equals("http://maps.google.com/?q=%20225%20N%20Michigan%20Ave,%20Suite%202100%20Chicago,%20IL%2060601") //returns correct but not percent encoded
         browser.useCss();
       }
-
-      //calling it a night. At current all that is left is checking the footer for Chicago, then polishing up the code
   });
 
   after(browser => browser.end());
