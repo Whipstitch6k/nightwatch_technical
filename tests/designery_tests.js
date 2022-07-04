@@ -15,7 +15,7 @@ describe('Designory Tests', function() {
     Verify that on those relevant pages menu options are the same.
   */
 
-  //Note: It might be nice to be able to dynamically create the list of menuItems rather than hardcode them. Might see about figuring out this feature if time permits
+  //Note: It might be nice to be able to dynamically create the list of menuItems rather than hardcode them. That said the problem definition requests a hard list, so hardcoding for now
   it('menuVerificationTest', function(browser) {
 
     menuVerifcationTestSinglePage('');
@@ -27,12 +27,12 @@ describe('Designory Tests', function() {
 
     function menuVerifcationTestSinglePage(suffix){
       browser
-        var menuItemsWithLinks = ["WORK", "ABOUT", "CAREERS", "CONTACT", "NEWS"] //all menu items except LOCATIONS, since LOCATIONS is a submenu and the rest are links
+        var menuItemsWithLinks = ["WORK", "ABOUT", "CAREERS", "CONTACT", "NEWS"] //all menu items except LOCATIONS, since LOCATIONS is a submenu (thus requiring its own test) and the rest are links
         var designory = browser.page.designoryPages();
 
         browser.getLog('browser', function() {console.log("\n\n")})
         designory.navigate('https://www.designory.com' + suffix)
-          //Using xpath navigation, I could check to verify the menuItems are actually part of the menu, but based on my current understanding of xpath, I can only verify for a known element structure. There may be a more generic way but at current I do not know. For the time being I will stay with the visibility check method, as the logic still holds. If the element is not visible before clicking the menu button and then visible after clicking the button, then the element is part of the menu
+          //Using xpath navigation, I could check to verify the menuItems are actually part of the menu, but based on my current understanding of xpath, I can only verify for a known element structure. There may be a more generic way but at current I do not know. For the time being I will stay with the visibility check method. If the element is not visible before clicking the menu button and then visible after clicking the button, then the element is part of the menu
 
 
           browser.getLog('browser', function() {console.log("\nPerforming visibility checks before clicking menu button:")})
@@ -49,13 +49,13 @@ describe('Designory Tests', function() {
           browser.useCss()
 
 
-          browser.getLog('browser', function() {console.log("\nClicking menu button:")})
           //menu click
+          browser.getLog('browser', function() {console.log("\nClicking menu button:")})
           designory.verify.visible('@menuButton', "menuButton visible")
           .click('@menuButton')
 
-          browser.getLog('browser', function() {console.log("\nPerforming visibility/link checks after clicking menu button:")})
           //verify menu options visible after click, also check that link matches for all except LOCATIONS
+          browser.getLog('browser', function() {console.log("\nPerforming visibility/link checks after clicking menu button:")})
           designory.verify.visible('@menuWrapper', "menuWrapper visible")
 
           .useXpath() // text selectors are Xpath
@@ -108,7 +108,7 @@ describe('Designory Tests', function() {
   it('locationVerificationTest', function(browser) {
     locationVerificationTestWithArgs('Chicago', 'CHI', '+1 312 729 4500', "http://maps.google.com/?q=%20225%20N%20Michigan%20Ave,%20Suite%202100%20Chicago,%20IL%2060601")
 
-      //doing this as a function for future-proofing. We can run it on other locations easier this way
+    //doing this as a function for future-proofing. We can run it on other locations easier this way
     function locationVerificationTestWithArgs(city, h1Value, phoneNumber, mapUrl){
       browser
         browser.getLog('browser', function() {console.log("\n")})
@@ -124,8 +124,6 @@ describe('Designory Tests', function() {
         //verify that element is part of the footer. Note: this looks for a very specific known element structure. Maybe there is a way to make it more generic
         browser.verify.elementPresent("//a[text()='" + city + "']//parent::h3/parent::div/parent::div/parent::div/parent::div/parent::div/parent::footer", "Verify '" + city + "' is located in footer")
         browser.useCss()
-
-        //vefify it is in the footer via xpath navigation
 
         .verify.textEquals('h1', h1Value, "Verify H1 value is " + h1Value)
 
